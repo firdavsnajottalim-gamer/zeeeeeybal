@@ -1,0 +1,6 @@
+{
+  "name": "Neon Gen",
+  "description": "Google Gemini uslubidagi toza ko'k va oq interfeysli sun'iy intellekt: kod yozish, rasm promptlari, rasm generatsiyasi, sekin o'ylab yozish va shaxsiy hisob.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

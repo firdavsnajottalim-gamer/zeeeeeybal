@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@keyframes blueColorShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-blue-salom {
+  background: linear-gradient(
+    135deg,
+    #1e3a8a 0%,
+    #2563eb 25%,
+    #38bdf8 50%,
+    #1d4ed8 75%,
+    #0284c7 100%
+  );
+  background-size: 250% 250%;
+  animation: blueColorShift 3.5s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}

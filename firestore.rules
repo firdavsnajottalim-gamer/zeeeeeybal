@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global catch-all default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User Profile
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && incoming().userId == userId
+        && incoming().email is string
+        && incoming().email.size() <= 200;
+      allow update: if isOwner(userId)
+        && incoming().userId == userId
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt', 'email']);
+      allow delete: if false;
+    }
+
+    // Chat Sessions
+    match /chats/{chatId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn()
+        && isValidId(chatId)
+        && incoming().userId == request.auth.uid
+        && incoming().title is string && incoming().title.size() <= 200;
+      allow update: if isSignedIn()
+        && existing().userId == request.auth.uid
+        && incoming().userId == request.auth.uid
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'category', 'updatedAt']);
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+
+      // Messages in a Chat Session
+      match /messages/{messageId} {
+        allow get: if isSignedIn() && existing().userId == request.auth.uid;
+        allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow create: if isSignedIn()
+          && isValidId(messageId)
+          && incoming().userId == request.auth.uid
+          && incoming().chatId == chatId
+          && incoming().role in ['user', 'model']
+          && incoming().text is string && incoming().text.size() <= 20000;
+        allow update: if false;
+        allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+      }
+    }
+
+    // Saved items (code, prompts, images)
+    match /saved_items/{itemId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn()
+        && isValidId(itemId)
+        && incoming().userId == request.auth.uid
+        && incoming().type in ['code', 'prompt', 'image']
+        && incoming().title is string && incoming().title.size() <= 200
+        && incoming().content is string && incoming().content.size() <= 20000;
+      allow update: if isSignedIn()
+        && existing().userId == request.auth.uid
+        && incoming().userId == request.auth.uid
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'language', 'imageUrl']);
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+  }
+}

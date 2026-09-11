@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User profile with display info and preferences",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 200 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "email"]
+    },
+    "ChatSession": {
+      "title": "Chat Session",
+      "description": "A chat conversation thread",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A single message in a chat thread",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "chatId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "maxLength": 20 },
+        "text": { "type": "string", "maxLength": 20000 },
+        "type": { "type": "string", "maxLength": 50 },
+        "codeSnippet": { "type": "string", "maxLength": 20000 },
+        "language": { "type": "string", "maxLength": 50 },
+        "imageUrl": { "type": "string", "maxLength": 500000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "chatId", "userId", "role", "text"]
+    },
+    "SavedItem": {
+      "title": "Saved Item",
+      "description": "User saved prompt, code snippet, or generated image bookmark",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "maxLength": 50 },
+        "title": { "type": "string", "maxLength": 200 },
+        "content": { "type": "string", "maxLength": 20000 },
+        "language": { "type": "string", "maxLength": 50 },
+        "imageUrl": { "type": "string", "maxLength": 500000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "type", "title", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile data for personal cabinet"
+    },
+    "/chats/{chatId}": {
+      "schema": "ChatSession",
+      "description": "User chat threads"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Messages inside a chat thread"
+    },
+    "/saved_items/{itemId}": {
+      "schema": "SavedItem",
+      "description": "User saved bookmarks, codes, and prompts"
+    }
+  }
+}
